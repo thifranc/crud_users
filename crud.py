@@ -9,8 +9,8 @@ app = Flask(__name__)
 
 session = Session()
 
-user_schema = UserSchema(only=('id', 'login', 'role'))
-users_schema = UserSchema(only=('id', 'login', 'role'), many=True)
+user_schema = UserSchema(only=('id', 'login', 'role', 'mail'))
+users_schema = UserSchema(only=('id', 'login', 'role', 'mail'), many=True)
 roles_schema = RoleSchema(many=True)
 
 @app.route('/')
@@ -20,10 +20,11 @@ def hello_world():
 
 @app.route("/users", methods=["POST"])
 def add_user():
-  if not all (k in request.json for k in ('login', 'password', 'id_role')):
+  if not all (k in request.json for k in ('login', 'password', 'id_role', 'mail')):
     return "Missing info : should furnish login, password, id_role"
 
   login = request.json['login']
+  mail = request.json['mail']
   password = argon2.hash(request.json['password'])
   id_role = request.json['id_role']
 
@@ -32,7 +33,7 @@ def add_user():
   if len(user) != 0:
     return "Login already taken"
 
-  new_user = User(login, password, id_role)
+  new_user = User(login, password, id_role, mail)
 
   session.add(new_user)
   session.commit()

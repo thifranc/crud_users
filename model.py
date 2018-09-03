@@ -33,13 +33,15 @@ class User(Base):
   __tablename__ = 'users'
   id=Column('id', Integer, primary_key=True)
   login=Column('login', String(255))
+  mail=Column('mail', String(255))
   password=Column('password', String(255))
   id_role = Column('id_role', Integer, ForeignKey("role.id"))
 
-  def __init__(self, login, password, id_role):
+  def __init__(self, login, password, id_role, mail):
     self.login = login
     self.password = password
     self.id_role = id_role
+    self.mail = mail
 
   @classmethod
   def exists_and_is_unique(self, res):
@@ -57,6 +59,7 @@ class UserSchema(ModelSchema):
   id = fields.Int()
   role = fields.Nested(RoleSchema)
   login = fields.Str()
+  mail = fields.Str()
   id_role = fields.Int()
 
 
