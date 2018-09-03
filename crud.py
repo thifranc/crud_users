@@ -7,16 +7,16 @@ from marshmallow import pprint
 #from wgsi import app
 app = Flask(__name__)
 
-
 session = Session()
 
-user_schema = UserSchema(only=('login', 'id_role'))
-users_schema = UserSchema(only=('login', 'id_role'), many=True)
+user_schema = UserSchema(only=('id', 'login', 'role'))
+users_schema = UserSchema(only=('id', 'login', 'role'), many=True)
 roles_schema = RoleSchema(many=True)
 
 @app.route('/')
 def hello_world():
   return 'Hello, World!'
+
 
 @app.route("/users", methods=["POST"])
 def add_user():
@@ -28,36 +28,36 @@ def add_user():
   id_role = request.json['id_role']
 
   user = session.query(User).filter(User.login == login).all()
+
   if len(user) != 0:
     return "Login already taken"
 
-  print user
-
   new_user = User(login, password, id_role)
-
-  print new_user
 
   session.add(new_user)
   session.commit()
   session.refresh(new_user)
 
   epure = user_schema.dumps(new_user)
-  return jsonify(epure)
+  return jsonify(epure.data)
+
 
 @app.route("/users", methods=["GET"])
 def get_user():
-  all_users = User.query.all()
-  result = users_schema.dump(all_users)
+  all_users = session.query(User).all()
+  result = users_schema.dumps(all_users)
   return jsonify(result.data)
 
 
 @app.route("/users/<login>", methods=["GET"])
 def user_detail(login):
-  user = session.query.filter(User.login == login).all()
+  user = session.query(User).filter(User.login == login).all()
 
+  print len(user)
   try:
     User.exists_and_is_unique(user)
-    return user_schema.jsonify(user[0])
+    print user_schema.dump(user[0])
+    return jsonify(user_schema.dump(user[0]).data)
   except ValueError as err:
     return err
 
@@ -95,9 +95,5 @@ def user_detail(login):
 #
 #  return user_schema.jsonify(user)
 #
-
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
 
 

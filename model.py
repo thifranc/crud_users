@@ -3,8 +3,8 @@ from sqlalchemy import String, Column, Integer, ForeignKey, create_engine
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-
 from marshmallow_sqlalchemy import ModelSchema
+from marshmallow import fields
 
 psql = {
     'user': 'roger_cli',
@@ -24,8 +24,7 @@ class Role(Base):
   __tablename__ = 'role'
   id=Column('id', Integer, primary_key=True)
   name=Column('name', String(255))
-  users = relationship("User")
-
+  users = relationship("User", backref="role")
 
   def __init__(self, name):
     self.name = name
@@ -50,12 +49,14 @@ class User(Base):
       raise ValueError("Too many users found : {}".format(len(res)))
     return True
 
-class UserSchema(ModelSchema):
-  class Meta:
-    model = User
-    #fields = ("login", "id_role")
-
 class RoleSchema(ModelSchema):
-  class Meta:
-    model = Role
+  id = fields.Int()
+  name = fields.Str()
+
+class UserSchema(ModelSchema):
+  id = fields.Int()
+  role = fields.Nested(RoleSchema)
+  login = fields.Str()
+  id_role = fields.Int()
+
 
