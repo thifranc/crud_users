@@ -3,13 +3,10 @@ from model import User, UserSchema, RoleSchema, Session
 from passlib.hash import argon2
 from marshmallow import pprint
 
-import os
 import json
 
 
-#from wgsi import app
-app = Flask(__name__)
-app.secret_key = os.urandom(24)
+from wgsi import app
 
 db_session = Session()
 
@@ -19,7 +16,39 @@ roles_schema = RoleSchema(many=True)
 
 @app.route('/')
 def hello_world():
-  return 'Hello, World!'
+  print session
+  if 'login' not in session:
+    return "You should get logged in my bro"
+  else:
+    if 'role' not in session:
+      return "Somthg is wrong with your session"
+    elif session['role'] == 'administrator':
+      return "You are administator waow"
+    elif session ['role'] == 'default':
+      return "You are basic"
+    else:
+      return 'Hello, World!'
+
+@app.route('/login', methods=['POST'])
+def login():
+  expected = ('login', 'password')
+  if not all (k in request.json for k in expected):
+    return "Missing info : should furnish " + " ".join(expected)
+
+  login = request.json['login']
+  password = request.json['password']
+
+  if 'login' in session:
+    return 'Already logged in !'
+
+  user = db_session.query(User).filter(User.login == login).first()
+  if argon2.verify(password, user.password) == True:
+    session['login'] = user.login
+    session['id'] = user.id
+    session['role'] = user.role.name
+    return 'Session initiated {}'.format(session)
+  else:
+    return 'No session'
 
 
 @app.route("/users", methods=["POST"])
@@ -66,29 +95,6 @@ def user_detail(login):
     return jsonify(user_schema.dump(user[0]).data)
   except ValueError as err:
     return err
-
-@app.route('/login', methods=['POST'])
-def login():
-  expected = ('login', 'password')
-  if not all (k in request.json for k in expected):
-    return "Missing info : should furnish " + " ".join(expected)
-
-
-  login = request.json['login']
-  password = request.json['password']
-
-  if login in session:
-    return 'Already logged in !'
-  if login in session:
-    return 'Already initiated : {}'.format(session[login])
-
-  user = db_session.query(User).filter(User.login == login).first()
-  if argon2.verify(password, user.password) == True:
-    print json.dumps({ 'id': user.id, 'login': user.login, 'role': user.role.name })
-    session[login] = json.dumps({ 'id': user.id, 'login': user.login, 'role': user.role.name })
-    return 'Session initiated {}'.format(session[login])
-  else:
-    return 'No session'
 
 
 #@app.route("/users/<username>", methods=["PUT", "PATCH"])
