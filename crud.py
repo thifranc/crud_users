@@ -51,7 +51,7 @@ def login():
     session['role'] = user.role.name
     return 'Session initiated {}'.format(session)
   else:
-    return 'No session'
+    return 'Bad credentials'
 
 
 @app.route("/users", methods=["POST"])
@@ -90,6 +90,45 @@ def get_user():
   all_users = db_session.query(User).all()
   result = users_schema.dumps(all_users)
   return jsonify(result.data)
+
+
+@app.route("/self", methods=["PUT", "PATCH"])
+def update_self():
+  expected = ('password', 'new_password')
+  try:
+    required_params_are_ok(request.json, expected)
+    is_logged()
+  except ValueError as err:
+    return str(err)
+
+  password = request.json['password']
+  new_password = request.json['new_password']
+  user = db_session.query(User).filter(User.id == session['id']).first()
+  if argon2.verify(password, user.password) == True:
+    new_password_hash = argon2.hash(new_password)
+    user.password = new_password_hash
+    db_session.commit()
+    return "User updated successfully !"
+  else:
+    return "Bad Password, contact Admin if you forgot it"
+  return "OK"
+
+@app.route("/users/<id_user>", methods=["DELETE"])
+def users_del(id_user):
+  try:
+    is_logged()
+    is_admin()
+  except ValueError as err:
+    return str(err)
+  user = db_session.query(User).filter(User.id == id_user).first()
+  print user
+  if user:
+    db_session.delete(user)
+    db_session.commit()
+    return "User deleted successfully"
+  else:
+    return "User not found"
+  return "OK"
 
 
 @app.route("/users/<login>", methods=["GET"])
