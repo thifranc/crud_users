@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, render_template, redirect, url_for
 from model import User, UserSchema, RoleSchema, Session
 from passlib.hash import argon2
 from marshmallow import pprint
@@ -15,20 +15,25 @@ user_schema = UserSchema(only=('id', 'login', 'role', 'mail'))
 users_schema = UserSchema(only=('id', 'login', 'role', 'mail'), many=True)
 roles_schema = RoleSchema(many=True)
 
+@app.route('/<string:page_name>/')
+def render_static(page_name):
+  return render_template('%s.html' % page_name)
+
+
 @app.route('/')
 def hello_world():
-  print session
   if 'login' not in session:
-    return "You should get logged in my bro"
+    return redirect(url_for('login'), code=302)
   else:
     if 'role' not in session:
       return "Somthg is wrong with your session"
     elif session['role'] == 'administrator':
-      return "You are administator waow"
+      return redirect(url_for('admin'), code=302)
     elif session ['role'] == 'default':
-      return "You are basic"
+      return redirect(url_for('self'), code=302)
     else:
-      return 'Hello, World!'
+      return redirect(url_for('login'), code=302)
+
 
 @app.route('/login', methods=['POST'])
 def login():
