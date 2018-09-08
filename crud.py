@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, session
 from model import User, UserSchema, RoleSchema, Session
 from passlib.hash import argon2
 from marshmallow import pprint
+from utils import is_logged, is_admin, required_params_are_ok
 
 import json
 
@@ -32,8 +33,10 @@ def hello_world():
 @app.route('/login', methods=['POST'])
 def login():
   expected = ('login', 'password')
-  if not all (k in request.json for k in expected):
-    return "Missing info : should furnish " + " ".join(expected)
+  try:
+    required_params_are_ok(request.json, expected)
+  except ValueError as err:
+    return str(err)
 
   login = request.json['login']
   password = request.json['password']
@@ -54,8 +57,13 @@ def login():
 @app.route("/users", methods=["POST"])
 def add_user():
   expected = ('login', 'password', 'id_role', 'mail')
-  if not all (k in request.json for k in expected):
-    return "Missing info : should furnish " + " ".join(expected)
+  print expected
+  try:
+    required_params_are_ok(request.json, expected)
+    is_logged()
+    is_admin()
+  except ValueError as err:
+    return str(err)
 
   login = request.json['login']
   mail = request.json['mail']

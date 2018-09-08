@@ -1,4 +1,3 @@
-
 from sqlalchemy import String, Column, Integer, ForeignKey, create_engine
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -16,6 +15,8 @@ psql = {
 
 engine = create_engine('postgresql+psycopg2://{}:{}@{}:{}/{}'.format(
                           psql['user'], psql['pw'], psql['host'], psql['port'], psql['db']))
+
+#test if Session maker is useless here ?
 Session = sessionmaker(bind=engine)
 
 Base = declarative_base()
