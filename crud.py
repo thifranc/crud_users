@@ -121,7 +121,30 @@ def update_self():
     new_password_hash = argon2.hash(new_password)
     user.password = new_password_hash
     db_session.commit()
-    mail_passwd_update(user.mail)
+    mail_passwd_update(user.mail, new_password)
+    return "User updated successfully !"
+  else:
+    return "Bad Password, contact Admin if you forgot it"
+  return "OK"
+
+@app.route("/updateUser", methods=["POST"])
+def update_user():
+  expected = ('login', 'new_password')
+  try:
+    dicted_data = required_params_are_ok(request, expected)
+    is_logged()
+    is_admin()
+  except ValueError as err:
+    return str(err)
+
+  login = dicted_data['login']
+  new_password = dicted_data['new_password']
+  user = db_session.query(User).filter(User.login == login).first()
+  if user:
+    new_password_hash = argon2.hash(new_password)
+    user.password = new_password_hash
+    db_session.commit()
+    mail_passwd_update(user.mail, new_password)
     return "User updated successfully !"
   else:
     return "Bad Password, contact Admin if you forgot it"
