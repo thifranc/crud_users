@@ -1,24 +1,57 @@
 <html>
   <head>
       <title>Chez Thibault</title>
+			<link rel="icon" href="favicon.ico" type="image/x-icon" />
   </head>
   <body>
     Bienvenue {{ login }}, tu pèses toi t'es admin, respect brooo
     Ici tu peux créer un user:
-    <form id="form" action="/users">
-      <input type="text" name="login" >
-      <input type="text" name="mail">
-      <input type="password" name="password">
+    <form method="post" id="createUser" action="/users">
+      <label>
+        <input type="text" name="login" >
+      Login
+      </label>
+
+      <label>
+        <input type="text" name="mail">
+      Mail
+      </label>
+
+      <label>
+        <input type="password" name="password">
+      Password
+      </label>
+
+      <input type="submit" value="Submit">
     </form>
 
     Si tu veux changer ton mdp tu hésites pas c'est juste là maggle:
-    <form id="form" action="/self">
-      <input type="password" name="password" >
-      <input type="password" name="new_password">
-      <input type="password" name="confirm_password">
+    <form method="post" id="updateSelf" action="/self">
+      <label>
+        <input type="password" name="password" >
+      Password
+      </label>
+
+      <label>
+        <input type="password" name="new_password">
+      New Password
+      </label>
+
+      <label>
+        <input type="password" name="confirm_password">
+      Confirm New Password
+      </label>
+
+      <input type="submit" value="Submit">
     </form>
 
     Regarde moi cette liste de users mon pote, un max de growth hack qu'on a encore fait pour choper tout ça :
     {{ users }}
+    <script>
+			document.querySelector("#createUser").addEventListener("submit", function(e){
+				e.preventDefault();
+				
+			});
+    </script>
   </body>
 </html>

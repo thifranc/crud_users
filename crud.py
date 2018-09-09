@@ -1,10 +1,11 @@
-from flask import Flask, request, jsonify, session, render_template, redirect, url_for
+from flask import Flask, request, jsonify, session, render_template, redirect, url_for, send_from_directory
 from model import User, UserSchema, RoleSchema, Session
 from passlib.hash import argon2
 from marshmallow import pprint
 from utils import is_logged, is_admin, required_params_are_ok
 
 import json
+import os
 
 
 from wgsi import app
@@ -15,42 +16,47 @@ user_schema = UserSchema(only=('id', 'login', 'role', 'mail'))
 users_schema = UserSchema(only=('id', 'login', 'role', 'mail'), many=True)
 roles_schema = RoleSchema(many=True)
 
+@app.route('/favicon.ico')
+def favicon():
+	return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 @app.route('/<string:page_name>/')
-def render_static(page_name):
-  return render_template('%s.html' % page_name)
+def caveat(page_name):
+  return redirect(url_for('home'), code=302)
 
 
 @app.route('/')
-def hello_world():
+def home():
   if 'login' not in session:
-    return redirect(url_for('login'), code=302)
+    return render_template('login.html')
   else:
     if 'role' not in session:
       return "Somthg is wrong with your session"
     elif session['role'] == 'administrator':
-      return redirect(url_for('admin'), code=302)
+      return render_template('admin.html', login=session['login'], users='USERS')
     elif session ['role'] == 'default':
-      return redirect(url_for('self'), code=302)
+      return render_template('self.html', login=session['login'])
     else:
-      return redirect(url_for('login'), code=302)
+      return render_template('login.html')
 
 
 @app.route('/login', methods=['POST'])
 def login():
   expected = ('login', 'password')
   try:
-    required_params_are_ok(request.json, expected)
+    dicted_data = required_params_are_ok(request, expected)
+    print dicted_data
   except ValueError as err:
     return str(err)
 
-  login = request.json['login']
-  password = request.json['password']
+  login = dicted_data['login']
+  password = dicted_data['password']
 
   if 'login' in session:
-    return 'Already logged in !'
+    return redirect(url_for('home'), code=302)
 
   user = db_session.query(User).filter(User.login == login).first()
-  if argon2.verify(password, user.password) == True:
+  if user and argon2.verify(password, user.password) == True:
     session['login'] = user.login
     session['id'] = user.id
     session['role'] = user.role.name
@@ -97,7 +103,7 @@ def get_user():
   return jsonify(result.data)
 
 
-@app.route("/self", methods=["PUT", "PATCH"])
+@app.route("/self", methods=["POST"])
 def update_self():
   expected = ('password', 'new_password')
   try:

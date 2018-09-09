@@ -1,14 +1,28 @@
 <html>
   <head>
       <title>Chez Thibault</title>
+			<link rel="icon" href="favicon.ico" type="image/x-icon" />
   </head>
   <body>
     Bienvenue {{ login }}
     Si tu veux changer ton mdp tu hésites pas c'est juste là maggle:
-    <form id="form" action="/self">
-      <input type="password" name="password" >
-      <input type="password" name="new_password">
-      <input type="password" name="confirm_password">
+    <form method="post" id="form" action="/self">
+      <label>
+        <input type="password" name="password" >
+      Password
+      </label>
+
+      <label>
+        <input type="password" name="new_password">
+      New Password
+      </label>
+
+      <label>
+        <input type="password" name="confirm_password">
+      Confirm New Password
+      </label>
+
+      <input type="submit" value="Submit">
     </form>
   </body>
 </html>
