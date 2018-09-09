@@ -3,10 +3,6 @@ from flask_mail import Mail, Message
 
 app.config['MAIL_SERVER']='mail.pseudo.moi'
 app.config['MAIL_PORT'] = 25
-#app.config['MAIL_USERNAME'] = 'webmaster@pseudo.moi'
-#app.config['MAIL_PASSWORD'] = '*****'
-#app.config['MAIL_USE_TLS'] = False
-#app.config['MAIL_USE_SSL'] = True
 
 webmaster = 'webmaster@pseudo.moi'
 

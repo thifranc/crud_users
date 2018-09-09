@@ -3,6 +3,7 @@ from model import User, UserSchema, RoleSchema, Session
 from passlib.hash import argon2
 from marshmallow import pprint
 from utils import is_logged, is_admin, required_params_are_ok
+from mail import mail_login, mail_passwd_update, mail_user_created
 
 import json
 import os
@@ -59,6 +60,7 @@ def login():
     session['login'] = user.login
     session['id'] = user.id
     session['role'] = user.role.name
+    mail_login(user.mail)
     return 'Session initiated {}'.format(session)
   else:
     return 'Bad credentials'
@@ -79,9 +81,9 @@ def add_user():
   password = argon2.hash(dicted_data['password'])
   id_role = dicted_data['id_role']
 
-  user = db_session.query(User).filter(User.login == login).all()
+  user = db_session.query(User).filter(User.login == login).first()
 
-  if len(user) != 0:
+  if user:
     return "Login already taken"
 
   new_user = User(login, password, id_role, mail)
@@ -89,6 +91,8 @@ def add_user():
   db_session.add(new_user)
   db_session.commit()
   db_session.refresh(new_user)
+
+  mail_user_created(new_user.mail, new_user.login, dicted_data['password'])
 
   epure = user_schema.dumps(new_user)
   return jsonify(epure.data)
@@ -117,6 +121,7 @@ def update_self():
     new_password_hash = argon2.hash(new_password)
     user.password = new_password_hash
     db_session.commit()
+    mail_passwd_update(user.mail)
     return "User updated successfully !"
   else:
     return "Bad Password, contact Admin if you forgot it"
