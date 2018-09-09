@@ -6,23 +6,39 @@
   <body>
     Bienvenue {{ login }}
     Si tu veux changer ton mdp tu hésites pas c'est juste là maggle:
-    <form method="post" id="form" action="/self">
+    <form id="updateSelf" method="post" action="/self">
       <label>
         <input type="password" name="password" >
       Password
       </label>
 
       <label>
-        <input type="password" name="new_password">
       New Password
+        <input
+          type="password"
+          id="new_password"
+          name="new_password">
       </label>
 
       <label>
-        <input type="password" name="confirm_password">
       Confirm New Password
+        <input
+          type="password"
+          id="confirm_password"
+          name="confirm_password">
       </label>
 
       <input type="submit" value="Submit">
     </form>
+    <script>
+			document.querySelector("#updateSelf").addEventListener("submit", function(e){
+          if (document.getElementById("new_password").value === ""
+            || document.getElementById("new_password").value !== document.getElementById("confirm_password").value ) {
+				    e.preventDefault();
+            alert("PASSWORD DOES NOT MATCH")
+          }
+				
+			});
+    </script>
   </body>
 </html>

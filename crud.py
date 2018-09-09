@@ -45,7 +45,6 @@ def login():
   expected = ('login', 'password')
   try:
     dicted_data = required_params_are_ok(request, expected)
-    print dicted_data
   except ValueError as err:
     return str(err)
 
@@ -68,18 +67,17 @@ def login():
 @app.route("/users", methods=["POST"])
 def add_user():
   expected = ('login', 'password', 'id_role', 'mail')
-  print expected
   try:
-    required_params_are_ok(request.json, expected)
+    dicted_data = required_params_are_ok(request, expected)
     is_logged()
     is_admin()
   except ValueError as err:
     return str(err)
 
-  login = request.json['login']
-  mail = request.json['mail']
-  password = argon2.hash(request.json['password'])
-  id_role = request.json['id_role']
+  login = dicted_data['login']
+  mail = dicted_data['mail']
+  password = argon2.hash(dicted_data['password'])
+  id_role = dicted_data['id_role']
 
   user = db_session.query(User).filter(User.login == login).all()
 
@@ -107,15 +105,15 @@ def get_user():
 def update_self():
   expected = ('password', 'new_password')
   try:
-    required_params_are_ok(request.json, expected)
+    dicted_data = required_params_are_ok(request, expected)
     is_logged()
   except ValueError as err:
     return str(err)
 
-  password = request.json['password']
-  new_password = request.json['new_password']
+  password = dicted_data['password']
+  new_password = dicted_data['new_password']
   user = db_session.query(User).filter(User.id == session['id']).first()
-  if argon2.verify(password, user.password) == True:
+  if user and argon2.verify(password, user.password) == True:
     new_password_hash = argon2.hash(new_password)
     user.password = new_password_hash
     db_session.commit()
@@ -132,7 +130,6 @@ def users_del(id_user):
   except ValueError as err:
     return str(err)
   user = db_session.query(User).filter(User.id == id_user).first()
-  print user
   if user:
     db_session.delete(user)
     db_session.commit()
@@ -146,13 +143,11 @@ def users_del(id_user):
 def user_detail(login):
   user = db_session.query(User).filter(User.login == login).all()
 
-  print len(user)
   try:
     User.exists_and_is_unique(user)
-    print user_schema.dump(user[0])
     return jsonify(user_schema.dump(user[0]).data)
   except ValueError as err:
-    return err
+    return str(err)
 
 
 #@app.route("/users/<username>", methods=["PUT", "PATCH"])
