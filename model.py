@@ -9,7 +9,7 @@ psql = {
     'user': 'roger_cli',
     'pw': '82uSNy5CQzR=3;n?t',
     'db': 'roger',
-    'host': 'db-master.pseudo.moi',
+    'host': 'localhost',
     'port': '5432',
 }
 
