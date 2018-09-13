@@ -88,14 +88,19 @@ def add_user():
 
   new_user = User(login, password, id_role, mail)
 
-  db_session.add(new_user)
-  db_session.commit()
-  db_session.refresh(new_user)
+  try:
+    db_session.add(new_user)
+    db_session.commit()
+    db_session.refresh(new_user)
 
-  #mail_user_created(new_user.mail, new_user.login, dicted_data['password'])
+    #mail_user_created(new_user.mail, new_user.login, dicted_data['password'])
+    epure = user_schema.dumps(new_user)
+    return jsonify(epure.data)
+  except Exception, e:
+    db_session.rollback()
+    return "Error has come"
 
-  epure = user_schema.dumps(new_user)
-  return jsonify(epure.data)
+
 
 
 @app.route("/users", methods=["GET"])
