@@ -60,7 +60,7 @@ def login():
     session['login'] = user.login
     session['id'] = user.id
     session['role'] = user.role.name
-    mail_login(user.mail)
+    #mail_login(user.mail)
     return 'Session initiated {}'.format(session)
   else:
     return 'Bad credentials'
@@ -92,7 +92,7 @@ def add_user():
   db_session.commit()
   db_session.refresh(new_user)
 
-  mail_user_created(new_user.mail, new_user.login, dicted_data['password'])
+  #mail_user_created(new_user.mail, new_user.login, dicted_data['password'])
 
   epure = user_schema.dumps(new_user)
   return jsonify(epure.data)
@@ -121,7 +121,7 @@ def update_self():
     new_password_hash = argon2.hash(new_password)
     user.password = new_password_hash
     db_session.commit()
-    mail_passwd_update(user.mail, new_password)
+    #mail_passwd_update(user.mail, new_password)
     return "User updated successfully !"
   else:
     return "Bad Password, contact Admin if you forgot it"
@@ -144,7 +144,7 @@ def update_user():
     new_password_hash = argon2.hash(new_password)
     user.password = new_password_hash
     db_session.commit()
-    mail_passwd_update(user.mail, new_password)
+    #mail_passwd_update(user.mail, new_password)
     return "User updated successfully !"
   else:
     return "Bad Password, contact Admin if you forgot it"
