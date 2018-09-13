@@ -4,3 +4,4 @@ psycopg2-binary==2.7.5
 passlib==1.7.1
 Flask==1.0.2
 Flask-Mail==0.9.1
+argon2-cffi==18.3.0
