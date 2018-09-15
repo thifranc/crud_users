@@ -2,3 +2,4 @@
 *.swp
 *.swo
 cook
+config.py

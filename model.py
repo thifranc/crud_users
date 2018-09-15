@@ -5,13 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from marshmallow_sqlalchemy import ModelSchema
 from marshmallow import fields
 
-psql = {
-    'user': 'roger_cli',
-    'pw': '82uSNy5CQzR=3;n?t',
-    'db': 'roger',
-    'host': 'localhost',
-    'port': '5432',
-}
+from config import psql
 
 engine = create_engine('postgresql+psycopg2://{}:{}@{}:{}/{}'.format(
                           psql['user'], psql['pw'], psql['host'], psql['port'], psql['db']))
