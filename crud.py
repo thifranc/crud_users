@@ -35,8 +35,7 @@ def home():
       return "Somthg is wrong with your session"
     elif session['role'] == 'administrator':
       all_users = db_session.query(User).all()
-      all_users_formatted = users_schema.dumps(all_users)
-      return render_template('admin.html', login=session['login'], users=all_users_formatted)
+      return render_template('admin.html', login=session['login'], users=all_users)
     elif session ['role'] == 'default':
       return render_template('self.html', login=session['login'])
     else:

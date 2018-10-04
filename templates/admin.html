@@ -60,7 +60,12 @@
     </form>
 
     Regarde moi cette liste de users mon pote, un max de growth hack qu'on a encore fait pour choper tout ça :
-    {{ users }}
+    <ul>
+    {% for user in users %}
+    <li>{{ user.id }}  {{ user.login }}  {{ user.mail }}</li>
+    {% endfor %}
+    </ul>
+
     <script>
 			document.querySelector("#updateUser").addEventListener("submit", function(e){
           if (document.getElementById("new_password").value === ""
