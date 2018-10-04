@@ -34,7 +34,9 @@ def home():
     if 'role' not in session:
       return "Somthg is wrong with your session"
     elif session['role'] == 'administrator':
-      return render_template('admin.html', login=session['login'], users='USERS')
+      all_users = db_session.query(User).all()
+      all_users_formatted = users_schema.dumps(all_users)
+      return render_template('admin.html', login=session['login'], users=all_users_formatted)
     elif session ['role'] == 'default':
       return render_template('self.html', login=session['login'])
     else:
@@ -61,9 +63,9 @@ def login():
     session['id'] = user.id
     session['role'] = user.role.name
     #mail_login(user.mail)
-    return 'Session initiated {}'.format(session)
+    return redirect(url_for('home'), code=302)
   else:
-    return 'Bad credentials'
+    return redirect(url_for('home'), code=302)
 
 
 @app.route("/users", methods=["POST"])
