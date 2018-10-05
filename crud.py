@@ -23,7 +23,7 @@ def favicon():
 
 @app.route('/<string:page_name>/')
 def caveat(page_name):
-  return redirect(url_for('home'), code=302)
+  return redirect(request.environ['HTTP_ORIGIN'], code=302)
 
 
 @app.route('/')
@@ -54,7 +54,7 @@ def login():
   password = dicted_data['password']
 
   if 'login' in session:
-    return redirect(url_for('home'), code=302)
+    return redirect(request.environ['HTTP_ORIGIN'], code=302)
 
   user = db_session.query(User).filter(User.login == login).first()
   if user and argon2.verify(password, user.password) == True:
@@ -62,9 +62,9 @@ def login():
     session['id'] = user.id
     session['role'] = user.role.name
     #mail_login(user.mail)
-    return redirect(url_for('home'), code=302)
+    return redirect(request.environ['HTTP_ORIGIN'], code=302)
   else:
-    return redirect(url_for('home'), code=302)
+    return redirect(request.environ['HTTP_ORIGIN'], code=302)
 
 
 @app.route("/users", methods=["POST"])
